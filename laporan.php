@@ -12,7 +12,7 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Rental - Admin Panel</title>
+    <title>Laporan Rental Selesai - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -29,12 +29,11 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
 </head>
 
 <body class="bg-gray-50">
-    <!-- Header -->
     <header class="bg-white shadow-md sticky top-0 z-40 no-print">
         <div class="container mx-auto px-6 py-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Laporan <span class="text-indigo-600">Rental</span></h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Laporan <span class="text-indigo-600">Rental Selesai</span></h1>
                 </div>
                 <div class="flex items-center space-x-6">
                     <span class="text-gray-600"><i class="fas fa-user mr-2"></i><?php echo $_SESSION['admin_nama']; ?></span>
@@ -49,11 +48,9 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
         </div>
     </header>
 
-    <!-- Main Content -->
     <section class="container mx-auto px-6 py-8">
-        <!-- Filter Laporan -->
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 no-print">
-            <h4 class="font-bold text-gray-800 mb-4"><i class="fas fa-filter mr-2 text-indigo-600"></i>Filter Laporan (Hanya Rental Selesai)</h4>
+            <h4 class="font-bold text-gray-800 mb-4"><i class="fas fa-filter mr-2 text-indigo-600"></i>Filter Laporan</h4>
             <form id="filterLaporanForm" class="grid md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2">Tanggal Mulai</label>
@@ -79,14 +76,13 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
                     <button type="button" onclick="generateLaporan()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex-1">
                         <i class="fas fa-search mr-2"></i>Tampilkan
                     </button>
-                    <!-- <button type="button" onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                    <button type="button" onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-print"></i>
-                    </button> -->
+                    </button>
                 </div>
             </form>
         </div>
 
-        <!-- Statistik -->
         <div id="statistikLaporan" class="grid md:grid-cols-3 gap-6 mb-6">
             <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
                 <div class="flex items-center justify-between">
@@ -125,11 +121,10 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
             </div>
         </div>
 
-        <!-- Tabel Laporan -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="p-6 border-b">
                 <h4 class="font-bold text-gray-800"><i class="fas fa-table mr-2 text-indigo-600"></i>Detail Rental Selesai</h4>
-                <p class="text-sm text-gray-600 mt-1">Data rental yang sudah selesai dan pendapatan yang diterima</p>
+                <p class="text-sm text-gray-600 mt-1">Hanya menampilkan rental yang telah diselesaikan.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -139,13 +134,14 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal Rental</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mobil</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pelanggan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durasi</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pendapatan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Harga</th>
                         </tr>
                     </thead>
                     <tbody id="laporanTableBody" class="bg-white divide-y divide-gray-200">
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                                 <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
                                 <p>Memuat data...</p>
                             </td>
@@ -153,7 +149,7 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
                     </tbody>
                     <tfoot id="laporanTableFoot" class="bg-gray-100 font-bold hidden">
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-right">TOTAL:</td>
+                            <td colspan="5" class="px-6 py-4 text-right">TOTAL:</td>
                             <td id="footer_total_hari" class="px-6 py-4">-</td>
                             <td id="footer_total_pendapatan" class="px-6 py-4">-</td>
                         </tr>
@@ -165,17 +161,33 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
 
     <script>
         function generateLaporan() {
+            // Ambil elemen berdasarkan ID
             const tanggalMulai = document.getElementById('filter_tanggal_mulai').value;
             const tanggalAkhir = document.getElementById('filter_tanggal_akhir').value;
             const carId = document.getElementById('filter_car').value;
 
-            let queryParams = ['status=selesai']; // Always filter for completed rentals only
+            // PERBAIKAN: Hapus baris yang mencari 'filter_status' karena elemennya sudah dihapus
+            // const status = document.getElementById('filter_status').value; <-- INI PENYEBAB ERROR
+
+            // Build Query Params
+            let queryParams = [];
             if (tanggalMulai) queryParams.push('tanggal_mulai=' + tanggalMulai);
             if (tanggalAkhir) queryParams.push('tanggal_akhir=' + tanggalAkhir);
             if (carId) queryParams.push('car_id=' + carId);
 
             fetch('generate_laporan.php?' + queryParams.join('&'))
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            throw new Error('Format Data Salah. Cek Console.');
+                        }
+                    });
+                })
                 .then(data => {
                     if (data.success) {
                         // Update statistics
@@ -192,7 +204,7 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
                         tbody.innerHTML = '';
 
                         if (data.data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500"><i class="fas fa-inbox text-3xl mb-2"></i><p>Tidak ada data rental selesai untuk periode ini</p></td></tr>';
+                            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500"><i class="fas fa-inbox text-3xl mb-2"></i><p>Tidak ada data rental selesai untuk periode ini</p></td></tr>';
                             tfoot.classList.add('hidden');
                         } else {
                             data.data.forEach((rental, index) => {
@@ -203,6 +215,11 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
                                     <td class="px-6 py-4 text-sm text-gray-500">${new Date(rental.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(rental.tanggal_selesai).toLocaleDateString('id-ID')}</td>
                                     <td class="px-6 py-4 text-sm font-medium text-gray-900">${rental.car_name} (${rental.merk})</td>
                                     <td class="px-6 py-4 text-sm text-gray-900">${rental.customer_name}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                            SELESAI
+                                        </span>
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-900">${rental.total_hari} hari</td>
                                     <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp ${parseInt(rental.total_harga).toLocaleString('id-ID')}</td>
                                 `;
@@ -214,9 +231,14 @@ $default_start = date('Y-m-d', strtotime('-30 days'));
                             document.getElementById('footer_total_pendapatan').textContent = 'Rp ' + parseInt(data.statistics.total_pendapatan).toLocaleString('id-ID');
                             tfoot.classList.remove('hidden');
                         }
+                    } else {
+                        alert('Gagal memuat data: ' + data.message);
                     }
                 })
-                .catch(error => alert('Error: ' + error));
+                .catch(error => {
+                    console.error(error);
+                    document.getElementById('laporanTableBody').innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Error: ${error.message}</td></tr>`;
+                });
         }
 
         // Auto-load on page load

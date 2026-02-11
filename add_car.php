@@ -59,7 +59,7 @@ $gambar = 'default-car.jpg';
 if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['gambar'];
     $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
-    $max_size = 2 * 1024 * 1024; // 2MB
+    $max_size = 5 * 1024 * 1024; // 5MB
 
     // Validasi tipe file
     if (!in_array($file['type'], $allowed_types)) {
@@ -69,7 +69,7 @@ if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
 
     // Validasi ukuran file
     if ($file['size'] > $max_size) {
-        echo json_encode(['success' => false, 'message' => 'Ukuran file maksimal 2MB']);
+        echo json_encode(['success' => false, 'message' => 'Ukuran file maksimal 5MB']);
         exit;
     }
 
@@ -90,7 +90,23 @@ $query = "INSERT INTO cars (nama, merk, tahun, warna, harga_per_hari, status, tr
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "ssisssisis", $nama, $merk, $tahun, $warna, $harga_per_hari, $status, $transmisi, $kapasitas, $gambar, $deskripsi);
+
+// FIX: Menggunakan 'ssisssisss' 
+// Transmisi (ke-7) dan Gambar (ke-9) sekarang 's' (string)
+mysqli_stmt_bind_param(
+    $stmt,
+    "ssisssisss",
+    $nama,
+    $merk,
+    $tahun,
+    $warna,
+    $harga_per_hari,
+    $status,
+    $transmisi,
+    $kapasitas,
+    $gambar,
+    $deskripsi
+);
 
 if (mysqli_stmt_execute($stmt)) {
     echo json_encode(['success' => true, 'message' => 'Mobil berhasil ditambahkan']);

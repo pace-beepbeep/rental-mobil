@@ -77,21 +77,42 @@ if (!$old_car) {
 
 $gambar = $old_car['gambar'];
 
-// Handle upload gambar baru
-if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
+// Handle upload gambar baru (LOGIKA BARU YANG LEBIH AMAN)
+if (isset($_FILES['gambar']) && !empty($_FILES['gambar']['name'])) {
     $file = $_FILES['gambar'];
-    $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
-    $max_size = 2 * 1024 * 1024; // 2MB
 
-    // Validasi tipe file
-    if (!in_array($file['type'], $allowed_types)) {
+    // Cek Error Upload
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $error_messages = [
+            UPLOAD_ERR_INI_SIZE   => 'Ukuran file terlalu besar (melebihi upload_max_filesize di php.ini)',
+            UPLOAD_ERR_FORM_SIZE  => 'Ukuran file terlalu besar (melebihi batas form)',
+            UPLOAD_ERR_PARTIAL    => 'File hanya terupload sebagian',
+            UPLOAD_ERR_NO_FILE    => 'Tidak ada file yang diupload',
+            UPLOAD_ERR_NO_TMP_DIR => 'Folder temporary hilang',
+            UPLOAD_ERR_CANT_WRITE => 'Gagal menulis file ke disk',
+            UPLOAD_ERR_EXTENSION  => 'Upload dihentikan oleh ekstensi PHP',
+        ];
+        $msg = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : 'Error upload tidak diketahui';
+        echo json_encode(['success' => false, 'message' => $msg]);
+        exit;
+    }
+
+    $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
+    $max_size = 5 * 1024 * 1024; // 5MB
+
+    // Validasi tipe file (MIME)
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    if (!in_array($mime, $allowed_types) && !in_array($file['type'], $allowed_types)) {
         echo json_encode(['success' => false, 'message' => 'Tipe file harus JPG, JPEG, atau PNG']);
         exit;
     }
 
     // Validasi ukuran file
     if ($file['size'] > $max_size) {
-        echo json_encode(['success' => false, 'message' => 'Ukuran file maksimal 2MB']);
+        echo json_encode(['success' => false, 'message' => 'Ukuran file maksimal 5MB']);
         exit;
     }
 
@@ -108,7 +129,7 @@ if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
         }
         $gambar = $new_gambar;
     } else {
-        echo json_encode(['success' => false, 'message' => 'Gagal mengupload gambar']);
+        echo json_encode(['success' => false, 'message' => 'Gagal mengupload gambar (Cek permission folder uploads)']);
         exit;
     }
 }
@@ -117,7 +138,24 @@ if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
 $query = "UPDATE cars SET nama=?, merk=?, tahun=?, warna=?, harga_per_hari=?, status=?, transmisi=?, kapasitas=?, gambar=?, deskripsi=? WHERE id=?";
 
 $stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "ssisssisisi", $nama, $merk, $tahun, $warna, $harga_per_hari, $status, $transmisi, $kapasitas, $gambar, $deskripsi, $id);
+
+// FIX: Menggunakan 'ssisssissii'
+// Transmisi (ke-7) dan Gambar (ke-9) sekarang 's' (string)
+mysqli_stmt_bind_param(
+    $stmt,
+    "ssisssissii",
+    $nama,
+    $merk,
+    $tahun,
+    $warna,
+    $harga_per_hari,
+    $status,
+    $transmisi,
+    $kapasitas,
+    $gambar,
+    $deskripsi,
+    $id
+);
 
 if (mysqli_stmt_execute($stmt)) {
     echo json_encode(['success' => true, 'message' => 'Mobil berhasil diupdate']);

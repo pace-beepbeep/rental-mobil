@@ -59,16 +59,19 @@ $whatsapp_url = "https://wa.me/" . $whatsapp_number . "?text=" . urlencode($what
 
         <div class="grid md:grid-cols-2 gap-8 mb-8">
             <!-- Gambar Mobil -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <?php if (!empty($car['gambar']) && $car['gambar'] !== 'default-car.jpg' && file_exists('uploads/' . $car['gambar'])): ?>
-                    <img src="uploads/<?php echo $car['gambar']; ?>" alt="<?php echo $car['nama']; ?>" class="w-full h-96 object-cover rounded-lg mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-2 overflow-hidden">
+                <?php
+                $gambar_path = 'uploads/' . $car['gambar'];
+                if (!empty($car['gambar']) && $car['gambar'] !== 'default-car.jpg' && file_exists($gambar_path)):
+                ?>
+                    <img src="<?php echo $gambar_path; ?>"
+                        alt="<?php echo $car['nama']; ?>"
+                        class="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-sm">
                 <?php else: ?>
-                    <div class="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg h-96 flex items-center justify-center mb-6">
+                    <div class="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg h-96 flex items-center justify-center">
                         <i class="fas fa-car text-white text-9xl opacity-50"></i>
                     </div>
                 <?php endif; ?>
-
-
             </div>
 
             <!-- Info Mobil -->
