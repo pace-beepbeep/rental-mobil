@@ -5,7 +5,7 @@ ob_start();
 require_once 'auth_check.php';
 require_once 'config.php';
 
-// Matikan display error agar tidak muncul di response (tetap log error di server)
+// Matikan display error agar tidak muncul di response
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
@@ -17,7 +17,8 @@ try {
     $tanggal_akhir = isset($_GET['tanggal_akhir']) ? clean_input($_GET['tanggal_akhir']) : '';
     $car_id = isset($_GET['car_id']) ? intval($_GET['car_id']) : 0;
 
-    // Build query - HARDCODED status 'selesai'
+    // Build query
+    // PERBAIKAN 1: Hardcode status = 'selesai'
     $query = "SELECT r.*, c.nama as car_name, c.merk, cu.nama as customer_name 
               FROM rentals r 
               JOIN cars c ON r.car_id = c.id 
@@ -27,14 +28,16 @@ try {
     $params = [];
     $types = '';
 
+    // PERBAIKAN 2: Filter berdasarkan created_at (Tanggal Transaksi)
     if ($tanggal_mulai) {
-        $query .= " AND r.tanggal_mulai >= ?";
+        // Menggunakan fungsi DATE() untuk mengambil bagian tanggal saja dari timestamp created_at
+        $query .= " AND DATE(r.created_at) >= ?";
         $params[] = $tanggal_mulai;
         $types .= 's';
     }
 
     if ($tanggal_akhir) {
-        $query .= " AND r.tanggal_selesai <= ?";
+        $query .= " AND DATE(r.created_at) <= ?";
         $params[] = $tanggal_akhir;
         $types .= 's';
     }
@@ -45,6 +48,7 @@ try {
         $types .= 'i';
     }
 
+    // Urutkan dari yang transaksi terbaru
     $query .= " ORDER BY r.created_at DESC";
 
     // Execute query
@@ -84,7 +88,6 @@ try {
         ]
     ];
 
-    // Bersihkan buffer sebelum output
     ob_end_clean();
     echo json_encode($response);
 
@@ -93,7 +96,6 @@ try {
     }
     mysqli_close($conn);
 } catch (Exception $e) {
-    // Jika ada error, kirim JSON error
     ob_end_clean();
     echo json_encode([
         'success' => false,
