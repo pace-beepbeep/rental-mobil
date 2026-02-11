@@ -195,7 +195,6 @@ $result = mysqli_query($conn, $query);
                         <li><a href="#beranda" class="text-gray-400 hover:text-white transition">Beranda</a></li>
                         <li><a href="#mobil" class="text-gray-400 hover:text-white transition">Daftar Mobil</a></li>
                         <li><a href="#kontak" class="text-gray-400 hover:text-white transition">Kontak</a></li>
-                        <li><a href="login.php" class="text-gray-400 hover:text-white transition">Admin Login</a></li>
                     </ul>
                 </div>
 

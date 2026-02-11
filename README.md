@@ -5,10 +5,10 @@ Website rental mobil sederhana yang dibangun dengan PHP, Tailwind CSS, dan MySQL
 ## Fitur
 
 - 🚗 Daftar mobil dengan informasi lengkap
-- 📝 Form booking rental mobil
-- 💰 Kalkulasi harga otomatis berdasarkan durasi rental
+- 📱 Pemesanan via WhatsApp
 - 👨‍💼 Admin panel untuk mengelola mobil dan rental
 - 📊 Dashboard statistik
+- 🔐 Sistem login admin
 - 📱 Responsive design
 
 ## Teknologi

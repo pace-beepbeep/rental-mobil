@@ -1,5 +1,4 @@
 <?php
-require_once 'auth_check.php';
 require_once 'config.php';
 
 // Ambil ID mobil dari URL
@@ -12,9 +11,16 @@ $car = mysqli_fetch_assoc($result);
 
 // Jika mobil tidak ditemukan
 if (!$car) {
-    header('Location: index.php');
+    header('Location: home.php');
     exit;
 }
+
+// Nomor WhatsApp Admin (GANTI DENGAN NOMOR YANG SEBENARNYA)
+$whatsapp_number = "6285736546272"; // Format: 628123456789 (62 + nomor tanpa 0 di depan)
+
+// Format pesan WhatsApp
+$whatsapp_message = "Halo, saya tertarik dengan mobil *" . $car['nama'] . "* (" . $car['merk'] . " " . $car['tahun'] . "). Apakah masih tersedia?";
+$whatsapp_url = "https://wa.me/" . $whatsapp_number . "?text=" . urlencode($whatsapp_message);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -37,8 +43,9 @@ if (!$car) {
                     <h1 class="text-2xl font-bold text-gray-800">Rental<span class="text-indigo-600">Mobil</span></h1>
                 </div>
                 <div class="hidden md:flex space-x-6">
-                    <a href="admin.php" class="text-indigo-600 font-semibold hover:text-indigo-800 transition">Beranda</a>
-                    <a href="admin.php#mobil" class="text-gray-600 hover:text-indigo-600 transition">Daftar Mobil</a>
+                    <a href="index.php" class="text-indigo-600 font-semibold hover:text-indigo-800 transition">Beranda</a>
+                    <a href="index.php#mobil" class="text-gray-600 hover:text-indigo-600 transition">Daftar Mobil</a>
+                    <a href="index.php#kontak" class="text-gray-600 hover:text-indigo-600 transition">Kontak</a>
                 </div>
             </div>
         </nav>
@@ -46,11 +53,11 @@ if (!$car) {
 
     <!-- Detail Mobil -->
     <section class="container mx-auto px-6 py-12">
-        <a href="index.php" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-6">
+        <a href="index.php#mobil" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-6 transition">
             <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Mobil
         </a>
 
-        <div class="grid md:grid-cols-2 gap-8">
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
             <!-- Gambar Mobil -->
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <?php if (!empty($car['gambar']) && $car['gambar'] !== 'default-car.jpg' && file_exists('uploads/' . $car['gambar'])): ?>
@@ -61,17 +68,7 @@ if (!$car) {
                     </div>
                 <?php endif; ?>
 
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg h-24 flex items-center justify-center">
-                        <i class="fas fa-car-side text-white text-3xl opacity-50"></i>
-                    </div>
-                    <div class="bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg h-24 flex items-center justify-center">
-                        <i class="fas fa-car text-white text-3xl opacity-50"></i>
-                    </div>
-                    <div class="bg-gradient-to-br from-indigo-400 to-blue-500 rounded-lg h-24 flex items-center justify-center">
-                        <i class="fas fa-car-side text-white text-3xl opacity-50"></i>
-                    </div>
-                </div>
+
             </div>
 
             <!-- Info Mobil -->
@@ -118,20 +115,74 @@ if (!$car) {
                     </div>
                 </div>
 
-                <?php if ($car['status'] == 'tersedia'): ?>
-                    <button onclick="document.getElementById('formBooking').scrollIntoView({behavior: 'smooth'})" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-lg">
-                        <i class="fas fa-calendar-check mr-2"></i> Booking Sekarang
-                    </button>
-                <?php else: ?>
-                    <button disabled class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed">
-                        <i class="fas fa-times-circle mr-2"></i> Mobil Sedang Disewa
-                    </button>
-                <?php endif; ?>
+                <!-- Tombol WhatsApp -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">Tertarik dengan mobil ini?</h3>
+                    <p class="text-gray-600 text-sm mb-4">Hubungi admin kami melalui WhatsApp untuk melakukan pemesanan dan informasi lebih lanjut.</p>
+
+                    <a href="<?php echo $whatsapp_url; ?>"
+                        target="_blank"
+                        class="w-full bg-green-500 text-white py-4 rounded-lg font-semibold hover:bg-green-600 transition shadow-lg flex items-center justify-center space-x-2">
+                        <i class="fab fa-whatsapp text-2xl"></i>
+                        <span>Pesan via WhatsApp</span>
+                    </a>
+
+                    <div class="mt-4 bg-indigo-50 p-4 rounded-lg">
+                        <p class="text-sm text-indigo-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Admin kami akan membantu Anda dengan proses pemesanan dan memberikan informasi terkait ketersediaan mobil.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Form Booking -->
-        <!-- Form Booking Removed for Admin View -->
+        <!-- Fitur Mobil -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">Fitur & Spesifikasi</h3>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-100 rounded-full p-3">
+                        <i class="fas fa-shield-alt text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Asuransi</p>
+                        <p class="text-sm text-gray-600">Fully Insured</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-100 rounded-full p-3">
+                        <i class="fas fa-gas-pump text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Bahan Bakar</p>
+                        <p class="text-sm text-gray-600">Bensin</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-100 rounded-full p-3">
+                        <i class="fas fa-cog text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Transmisi</p>
+                        <p class="text-sm text-gray-600"><?php echo $car['transmisi']; ?></p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-100 rounded-full p-3">
+                        <i class="fas fa-snowflake text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">AC</p>
+                        <p class="text-sm text-gray-600">Full AC</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Footer -->
@@ -142,35 +193,6 @@ if (!$car) {
             </div>
         </div>
     </footer>
-
-    <script>
-        const hargaPerHari = <?php echo $car['harga_per_hari']; ?>;
-
-        function calculateTotal() {
-            const tanggalMulai = document.querySelector('input[name="tanggal_mulai"]').value;
-            const tanggalSelesai = document.querySelector('input[name="tanggal_selesai"]').value;
-
-            if (tanggalMulai && tanggalSelesai) {
-                const start = new Date(tanggalMulai);
-                const end = new Date(tanggalSelesai);
-                const diffTime = Math.abs(end - start);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays > 0) {
-                    const totalHarga = diffDays * hargaPerHari;
-                    document.getElementById('totalHari').textContent = diffDays + ' hari';
-                    document.getElementById('totalHarga').textContent = formatRupiah(totalHarga);
-                } else {
-                    document.getElementById('totalHari').textContent = '0 hari';
-                    document.getElementById('totalHarga').textContent = 'Rp 0';
-                }
-            }
-        }
-
-        function formatRupiah(angka) {
-            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-    </script>
 </body>
 
 </html>
